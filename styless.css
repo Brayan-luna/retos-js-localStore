@@ -1,0 +1,121 @@
+* {
+    border: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.section-1 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.form{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 20px;
+}
+
+.formulario-edit{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 20px;
+  
+}
+
+.text-area {
+    width: 80%;
+    outline: none;
+    padding: 20px;
+    resize: none;
+    border: solid 2px red;
+    margin-bottom: 20px;
+}
+.text-area-edit{
+    width: 80%;
+    outline: none;
+    padding: 20px;
+    resize: none;
+    border: solid 2px blue;
+    margin-bottom: 20px;
+    
+}
+
+.button-add {
+    width: 80%;
+    font-size: 30px;
+    color: white;
+    background-color: black;
+}
+
+.section-2 {
+    display: flex;
+    padding: 20px 146px;
+    justify-content: space-between;
+}
+
+.button-opciones {
+    font-size: 20px;
+    background-color: azure;
+    border: solid 1px black;
+    padding: 10px 50px;
+}
+
+
+.section-3{
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 20px;
+}
+.input-checkBox {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+}
+
+.input-checkBox:checked {
+    background-color: red;
+}
+
+
+.button-edit {
+    font-size: 20px;
+    border: solid 1px black;
+    padding: 10px 50px;
+    background-color: white;
+    width: 250px;
+}
+
+.button-delete {
+    font-size: 20px;
+    margin-left: 20px;
+    background-color: red;
+    border: solid 1px black;
+    color: white;
+    padding: 10px 50px;
+    width: 250px;
+}
+.div-contai-tarea-div{
+    display: flex;
+    align-items: center;
+}
+#h3-Task{
+    padding-left: 40px;
+    font-size: 30px;
+}
+#h3-complete{
+    padding-left: 40px;
+    font-size: 30px;
+}
+#h3-active{
+    padding-left: 40px;
+    font-size: 30px;
+}
