@@ -6,21 +6,48 @@ function guardadoArray(tarea, id) {
     }
     arrayTareas.push(nombreTarea);
 }
+
+let objId = 0; 
 ///funciones
+function check(checkk) {
+    if (checkk === true) {
+        alert('es true')
+    }
+    else {
+        alert('es false')
+    }
+}
 function eliminar(id) {
     let datos = localStorage.getItem("formulario");
     let datosJson = JSON.parse(datos);
     arrayTareas = datosJson.filter((e) => e.Id !== id);
     localStorage.setItem("formulario", JSON.stringify(arrayTareas));
 }
+function editarImputId(id) {
+    fomrularioEdit.style = "display: flex;"
+    formulario.style = "display: none"
+    objId =id;
+}
+function editarTask(){
+    let inputTareaEdit = document.getElementById("tareaEdit").value;
+    arrayTareas.forEach(element =>{
+        if(element.Id === objId){
+            element.Nombre = inputTareaEdit;
+            localStorage.setItem("formulario", JSON.stringify(arrayTareas));
+            imprimirHtml();
+        }
+    })
+    fomrularioEdit.style = "display: none;"
+    formulario.style = "display: flex"
+}
 const guardarDB = () => {
     localStorage.setItem('formulario', JSON.stringify(arrayTareas));
 }
 function imprimirHtml() {
     const section = document.getElementById("section-3");
-    arrayTareas  = JSON.parse(localStorage.getItem('formulario'));
-    section.innerHTML = "";   
-    if (arrayTareas === null) {        
+    arrayTareas = JSON.parse(localStorage.getItem('formulario'));
+    section.innerHTML = "";
+    if (arrayTareas === null) {
         arrayTareas = [];
     }
     else {
@@ -37,6 +64,10 @@ function imprimirHtml() {
             let inputCheck = document.createElement("input");
             inputCheck.type = "checkbox"
             inputCheck.className = "input-checkBox"
+            inputCheck.addEventListener('change', (e) => {
+                let checkk = inputCheck.checked;
+                check(checkk);
+            }, false)
 
             //h3 tarea
             let h3Tareaa = document.createElement("h3");
@@ -50,6 +81,11 @@ function imprimirHtml() {
             let botonEdit = document.createElement("button");
             botonEdit.textContent = "Edit";
             botonEdit.className = "button-edit"
+            botonEdit.addEventListener('click', (e) => {
+                editarImputId(element.Id)
+            })
+            let botonFormEdit = document.getElementById("ButonEditar");
+            botonFormEdit.addEventListener('click',editarTask)
             let butonDelete = document.createElement("button");
             butonDelete.id = 'deletee'
             butonDelete.textContent = "Delete";
@@ -88,6 +124,6 @@ formulario.addEventListener("submit", (e) => {
 })
 
 
-document.addEventListener('DOMContentLoaded',imprimirHtml)
+document.addEventListener('DOMContentLoaded', imprimirHtml)
 
 
