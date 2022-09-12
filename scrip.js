@@ -1,10 +1,11 @@
 let arrayTareas = [];
-function guardadoArray(tarea, id, active, complete) {
+function guardadoArray(tarea, id, active, complete,contadorAll) {
     let nombreTarea = {
         Nombre: tarea,
         Id: id,
         Active: active,
         Complete: complete,
+        tareaCompleta: contadorAll,
     }
     arrayTareas.push(nombreTarea);
 }
@@ -13,6 +14,7 @@ let complete = "incompleto"
 let objId = 0;
 let checkId = 0;
 let ContadorReset = 0;
+let contadorAll = 0;
 ///funciones
 function ImprimirTareasCompletadas() {
     let section = document.getElementById("section-3");
@@ -221,7 +223,6 @@ function imprimirHtml() {
     }
     else {
         arrayTareas.forEach(element => {
-
             // div comtendor 
             let divContainer = document.createElement("div");
 
@@ -323,30 +324,14 @@ let formulario = document.getElementById("formulario");
 let fomrularioEdit = document.getElementById("formulario2");
 fomrularioEdit.style = "display : none"
 formulario.addEventListener("submit", (e) => {
-    taskAll.textContent = `task remaining: ${contadorAllLocalSto()}`
     e.preventDefault();
     let inputNombreTarea = document.getElementById("tarea").value;
-    guardadoArray(inputNombreTarea, idLocalStorage(), active, complete);
+    guardadoArray(inputNombreTarea, active, complete);
     guardarDB();
     imprimirHtml();
     formulario.reset();
 })
-function idLocalStorage() {
-    let idLocal = localStorage.getItem('Id') || "0";
-    let IdNew = JSON.parse(idLocal) + 1;
-    localStorage.setItem("Id", JSON.stringify(IdNew));
-    return IdNew;
-}
-function contadorAllLocalSto(){
-    let butonDelete = document.createElement("button");
-    let contador = localStorage.getItem('Id') || "0";
-    let contadorAll = JSON.parse(contador) + 1;
-    localStorage.setItem('contadorAll', JSON.stringify(contadorAll));
-    butonDelete.addEventListener('click',(e)=>{
-        let contadorAll = JSON.parse(contador) - 1;
-    })
-    return contadorAll;
 
-}
+
 document.addEventListener('DOMContentLoaded', imprimirHtml)
 
