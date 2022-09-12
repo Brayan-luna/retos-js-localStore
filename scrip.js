@@ -326,12 +326,17 @@ fomrularioEdit.style = "display : none"
 formulario.addEventListener("submit", (e) => {
     e.preventDefault();
     let inputNombreTarea = document.getElementById("tarea").value;
-    guardadoArray(inputNombreTarea, active, complete);
+    guardadoArray(inputNombreTarea,idLocalStorage(), active, complete);
     guardarDB();
     imprimirHtml();
     formulario.reset();
 })
-
+function idLocalStorage() {
+    let idLocal = localStorage.getItem('Id') || "0";
+    let IdNew = JSON.parse(idLocal) + 1;
+    localStorage.setItem("Id", JSON.stringify(IdNew));
+    return IdNew;
+}
 
 document.addEventListener('DOMContentLoaded', imprimirHtml)
 
