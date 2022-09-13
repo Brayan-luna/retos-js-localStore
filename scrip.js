@@ -221,6 +221,7 @@ function eliminar(id) {
     //contadores
     contadorAll -=1;
     contadorAllLocal();
+    contadorActive = contadorAll - contadorComplete;
 }
 function editarTask() {
     let inputTareaEdit = document.getElementById("tareaEdit").value;
