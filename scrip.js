@@ -1,25 +1,45 @@
 let arrayTareas = [];
-function guardadoArray(tarea, id, active, complete) {
+function guardadoArray(tarea, id, active, complete,invalidarEdit) {
     let nombreTarea = {
         Nombre: tarea,
         Id: id,
         Active: active,
         Complete: complete,
+        completeInvalidEdi:invalidarEdit, 
+        PlaceHolder: ''
     }
     arrayTareas.push(nombreTarea);
 }
 let active = "Active"
 let complete = "incompleto"
+let invalidEdit = "valido"
 let objId = 0;
 let checkId = 0;
-let ContadorReset = 0;
+let idInavlidarEdit =0;
 let contadorAll = 0;
 let contadorComplete = 0;
 let contadorActive = 0;
+if(contadorAll == null){
+    contadorAll = 0;
+}
 contadorAll = JSON.parse(localStorage.getItem('contadorLocalAll'));
 contadorComplete = JSON.parse(localStorage.getItem('contadorCompleteLocal'));
 
+
 ///funciones
+function botonComentarioInvalido(e,idElement){
+    let TargetButon = e.target.parentNode.parentNode.childNodes[1].childNodes[0];
+    TargetButon.setAttribute("disabled","disabled");
+    let TargetText = e.target.parentNode.childNodes[2]
+    idInavlidarEdit = idElement;
+    arrayTareas.forEach(element=>{
+        if(element.Id == idInavlidarEdit){
+            element.completeInvalidEdi = "invalido";
+            element.PlaceHolder = TargetText.value;
+        }
+    })
+   guardarDB()
+}
 function ImprimirTareasCompletadas() {
     let section = document.getElementById("section-3");
     let arrayTareasComplet = JSON.parse(localStorage.getItem('tareasCompletadas'));
@@ -42,6 +62,18 @@ function ImprimirTareasCompletadas() {
             inputCheck.className = "input-checkBox"
             if(element.Complete == "completada"){
                 inputCheck.setAttribute("checked", "checked")
+                let inputComentario = document.createElement("texTarea");
+                inputComentario.placeholder = element.PlaceHolder
+                let butonChulito = document.createElement("button")
+                butonChulito.className = "botonAgregarComentario"
+                butonChulito.textContent = "  ✓"
+                inputComentario.className = "textAreaComentario"
+                divContainerTareaDiv.insertAdjacentElement('beforeend', inputComentario);
+                divContainerTareaDiv.insertAdjacentElement('beforeend',butonChulito)
+                butonChulito.addEventListener('click',(e)=>{
+        
+                    botonComentarioInvalido(e,element.Id,inputComentario)
+                })
             }
             inputCheck.addEventListener('change', (e) => {
                 let checkk = inputCheck.checked;
@@ -69,6 +101,9 @@ function ImprimirTareasCompletadas() {
             let botonEdit = document.createElement("button");
             botonEdit.textContent = "Edit";
             botonEdit.className = "button-edit"
+            if(element.completeInvalidEdi== "invalido"){
+                botonEdit.setAttribute("disabled","disabled")
+            }
             botonEdit.addEventListener('click', (e) => {
                 editarImputId(element.Id)
             })
@@ -198,6 +233,8 @@ function check(checkk, id) {
                 element.Active = "desativada"
                 contadorComplete +=1;
                 contadorCompleteLocal()
+          
+          
             }
         })
     }
@@ -208,6 +245,9 @@ function check(checkk, id) {
                 element.Active = "Active"
                 contadorComplete -=1;
                 contadorCompleteLocal()
+                element.completeInvalidEdi = invalidEdit;
+                element.PlaceHolder = "";
+              
             }
         })
     }
@@ -222,6 +262,7 @@ function eliminar(id) {
     contadorAll -=1;
     contadorAllLocal();
     contadorActive = contadorAll - contadorComplete;
+    window.location = window.location.href;
 }
 function editarTask() {
     let inputTareaEdit = document.getElementById("tareaEdit").value;
@@ -262,6 +303,17 @@ function imprimirHtml() {
             inputCheck.className = "input-checkBox"
             if(element.Complete == "completada"){
                 inputCheck.setAttribute("checked", "checked")
+                let inputComentario = document.createElement("texTarea");
+                inputComentario.placeholder = element.PlaceHolder
+                let butonChulito = document.createElement("button")
+                butonChulito.className = "botonAgregarComentario"
+                butonChulito.textContent = "  ✓"
+                inputComentario.className = "textAreaComentario"
+                divContainerTareaDiv.insertAdjacentElement('beforeend', inputComentario);
+                divContainerTareaDiv.insertAdjacentElement('beforeend',butonChulito);
+                butonChulito.addEventListener('click',(e)=>{
+                    botonComentarioInvalido(e,element.Id)
+                })
             }
             inputCheck.addEventListener('change', (e) => {
                 let checkk = inputCheck.checked;
@@ -285,12 +337,16 @@ function imprimirHtml() {
             let botonEdit = document.createElement("button");
             botonEdit.textContent = "Edit";
             botonEdit.className = "button-edit"
+            if(element.completeInvalidEdi== "invalido"){
+                botonEdit.setAttribute("disabled","disabled")
+            }
+
+            
             botonEdit.addEventListener('click', (e) => {
                 editarImputId(element.Id)
             })
             let botonFormEdit = document.getElementById("ButonEditar");
             botonFormEdit.addEventListener('click', (e) => {
-                
                 e.preventDefault()
                 editarTask()
             })
@@ -369,7 +425,7 @@ formulario.addEventListener("submit", (e) => {
     taskAll.textContent = `task remaining: ${contadorAll}`
     contadorAllLocal()
     let inputNombreTarea = document.getElementById("tarea").value;
-    guardadoArray(inputNombreTarea,idLocalStorage(), active, complete);
+    guardadoArray(inputNombreTarea,idLocalStorage(), active, complete,invalidEdit);
     guardarDB();
     imprimirHtml();
     formulario.reset();
@@ -384,6 +440,8 @@ function idLocalStorage() {
 function contadorAllLocal(){
     localStorage.setItem('contadorLocalAll', JSON.stringify(contadorAll));
     contadorAll = JSON.parse(localStorage.getItem('contadorLocalAll'));
+    taskAll.textContent = `task remaining: ${contadorAll}`
+
 
 }
 function contadorCompleteLocal(){
@@ -393,6 +451,5 @@ function contadorCompleteLocal(){
 
 document.addEventListener('DOMContentLoaded', imprimirHtml)
 document.addEventListener('DOMContentLoaded', contadorAllLocal)
-document.addEventListener('DOMContentLoaded', contadorCompleteLocal)
-document.addEventListener('DOMContentLoaded',   taskAll.textContent = `task remaining: ${contadorAll}`)
+
 
