@@ -1,11 +1,10 @@
 let arrayTareas = [];
-function guardadoArray(tarea, id, active, complete,contadorAll) {
+function guardadoArray(tarea, id, active, complete) {
     let nombreTarea = {
         Nombre: tarea,
         Id: id,
         Active: active,
         Complete: complete,
-        tareaCompleta: contadorAll,
     }
     arrayTareas.push(nombreTarea);
 }
@@ -15,6 +14,11 @@ let objId = 0;
 let checkId = 0;
 let ContadorReset = 0;
 let contadorAll = 0;
+let contadorComplete = 0;
+let contadorActive = 0;
+contadorAll = JSON.parse(localStorage.getItem('contadorLocalAll'));
+contadorComplete = JSON.parse(localStorage.getItem('contadorCompleteLocal'));
+
 ///funciones
 function ImprimirTareasCompletadas() {
     let section = document.getElementById("section-3");
@@ -36,9 +40,20 @@ function ImprimirTareasCompletadas() {
             let inputCheck = document.createElement("input");
             inputCheck.type = "checkbox"
             inputCheck.className = "input-checkBox"
-            inputCheck.setAttribute("checked", "checked")
+            if(element.Complete == "completada"){
+                inputCheck.setAttribute("checked", "checked")
+            }
             inputCheck.addEventListener('change', (e) => {
                 let checkk = inputCheck.checked;
+                if(checkk === true){
+                    butonDelete.addEventListener('click',(e)=>{
+                        contadorComplete -= 1;
+                    })
+                    butonDelete.addEventListener("click",(e)=>{
+                        contadorComplete -=1;
+                        contadorAll -=1;
+                    })
+                }
                 check(checkk, element.Id);
             }, false)
 
@@ -68,6 +83,10 @@ function ImprimirTareasCompletadas() {
             butonDelete.className = "button-delete";
             butonDelete.addEventListener('click', (e) => {
                 e.target.parentNode.parentNode.remove();
+                if(element.Complete == "completada"){
+                    contadorComplete -=1;
+                    contadorCompleteLocal()
+                }
                 eliminar(element.Id)
             })
 
@@ -177,6 +196,8 @@ function check(checkk, id) {
             if (element.Id === checkId) {
                 element.Complete = "completada"
                 element.Active = "desativada"
+                contadorComplete +=1;
+                contadorCompleteLocal()
             }
         })
     }
@@ -185,7 +206,8 @@ function check(checkk, id) {
             if (element.Id === checkId) {
                 element.Complete = "incompleto"
                 element.Active = "Active"
-                
+                contadorComplete -=1;
+                contadorCompleteLocal()
             }
         })
     }
@@ -196,6 +218,9 @@ function eliminar(id) {
     let datosJson = JSON.parse(datos);
     arrayTareas = datosJson.filter((e) => e.Id !== id);
     localStorage.setItem("formulario", JSON.stringify(arrayTareas));
+    //contadores
+    contadorAll -=1;
+    contadorAllLocal();
 }
 function editarTask() {
     let inputTareaEdit = document.getElementById("tareaEdit").value;
@@ -239,6 +264,11 @@ function imprimirHtml() {
             }
             inputCheck.addEventListener('change', (e) => {
                 let checkk = inputCheck.checked;
+                if(checkk === true){
+                    butonDelete.addEventListener('click',(e)=>{
+                        contadorComplete -= 1;
+                    })
+                }
                 check(checkk, element.Id);
             }, false)
 
@@ -269,6 +299,10 @@ function imprimirHtml() {
             butonDelete.className = "button-delete";
             butonDelete.addEventListener('click', (e) => {
                 e.target.parentNode.parentNode.remove();
+                if(element.Complete == "completada"){
+                    contadorComplete -=1;
+                    contadorCompleteLocal()
+                }
                 eliminar(element.Id)
             })
 
@@ -294,22 +328,27 @@ botonComplete.addEventListener('click', (e) => {
     e.preventDefault()
     sectionComplete();
     ImprimirTareasCompletadas();
-    taskComplete.textContent = `task Complete:`;
+    if(contadorComplete == null){
+        contadorComplete = 0;
+    }
+    taskComplete.textContent = `task Complete: ${contadorComplete}`;
     taskActive.textContent = ``;
     taskAll.textContent = ``;
    
 })
+
 botonActive.addEventListener('click',(e)=>{
     e.preventDefault();
     sectionActive();
-    taskActive.textContent = `task Active:`;
+    taskActive.textContent = `task Active: ${contadorAll - contadorComplete}`;
+   
     taskAll.textContent = ``;
     taskComplete.textContent = ``;
     ImprimirTareasActivas()
 })
 botonAll.addEventListener('click',(e)=>{
     e.preventDefault();
-    taskAll.textContent = `task remaining:`
+    taskAll.textContent = `task remaining: ${contadorAll}`
     taskActive.textContent = ``;
     taskComplete.textContent = ``;
     imprimirHtml()
@@ -325,6 +364,9 @@ let fomrularioEdit = document.getElementById("formulario2");
 fomrularioEdit.style = "display : none"
 formulario.addEventListener("submit", (e) => {
     e.preventDefault();
+    contadorAll +=1;
+    taskAll.textContent = `task remaining: ${contadorAll}`
+    contadorAllLocal()
     let inputNombreTarea = document.getElementById("tarea").value;
     guardadoArray(inputNombreTarea,idLocalStorage(), active, complete);
     guardarDB();
@@ -338,5 +380,18 @@ function idLocalStorage() {
     return IdNew;
 }
 
+function contadorAllLocal(){
+    localStorage.setItem('contadorLocalAll', JSON.stringify(contadorAll));
+    contadorAll = JSON.parse(localStorage.getItem('contadorLocalAll'));
+
+}
+function contadorCompleteLocal(){
+    localStorage.setItem('contadorCompleteLocal', JSON.stringify(contadorComplete));
+    contadorComplete = JSON.parse(localStorage.getItem('contadorCompleteLocal'));
+}
+
 document.addEventListener('DOMContentLoaded', imprimirHtml)
+document.addEventListener('DOMContentLoaded', contadorAllLocal)
+document.addEventListener('DOMContentLoaded', contadorCompleteLocal)
+document.addEventListener('DOMContentLoaded',   taskAll.textContent = `task remaining: ${contadorAll}`)
 
