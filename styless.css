@@ -119,7 +119,7 @@
     padding-left: 40px;
     font-size: 30px;
 }
-.textAreaComentario{
+.textAreaComentario{  
     resize: none;
     outline: none;
     padding: 13px;
@@ -132,6 +132,7 @@
     margin-left: 20px;
 }
 .botonAgregarComentario{
+    display: block;
     padding: 20px;
     width: 100px;
     border-radius: 20px;

@@ -3,8 +3,11 @@ let idObjetoEdit = 0;
 let idObjetoDelete = 0;
 let objetoIdCompletada = 0;
 let tareasTraspaso = 0;
+let objetoInvalidarEdit = 0;
+let validarchekc = null;
 ///filtrado de arrays
-function filtrarCompletadas(){
+function filtrarCompletadas() {
+    validarchekc = false;
     let datos = JSON.parse(localStorage.getItem('Tareas'))
     let tareasCompletadas = datos.filter((e) => e.complete === "completada")
     localStorage.setItem("TareasCompletadas", JSON.stringify(tareasCompletadas))
@@ -12,17 +15,18 @@ function filtrarCompletadas(){
     imprimirTareas()
     h3CompleteImprimir()
 }
-function filtrarAlls(){
+function filtrarAlls() {
+    validarchekc = null;
     tareasTraspaso = 0;
     imprimirTareas()
 }
-function filtrarActivas(){
+function filtrarActivas() {
+    validarchekc = true;
     let datos = JSON.parse(localStorage.getItem('Tareas'))
     let TareasActivas = datos.filter((e) => e.activa === "activa")
     localStorage.setItem("TareasActivas", JSON.stringify(TareasActivas))
     tareasTraspaso = false;
-    imprimirTareas() 
-    h3CompleteImprimir()
+    imprimirTareas()
     h3ActiveImprimir()
 }
 function h3allImprimir() {
@@ -31,11 +35,8 @@ function h3allImprimir() {
     h3TaskAll.textContent = `Task remaining: ${h3All}`
 }
 function h3ActiveImprimir() {
-   
-
     let tareasTotales = JSON.parse(localStorage.getItem('TareasActivas'))
     let numeroTotales = tareasTotales.length;
-
     let h3Active = numeroTotales;
     h3TaskAll.textContent = `Task Active: ${h3Active}`
 }
@@ -53,26 +54,31 @@ function tareaPushArray(Tarea, id) {
         Id: id,
         complete: "incompleta",
         activa: "activa",
+        EditAtivo: "activo",
+        placeholder: "",
     }
+
     arrayTareas.push(tarea);
     guadarDB()
 }
 function check(checkk, id) {
     let checkeado = checkk.checked;
     objetoIdCompletada = id
-    console.log(id)
     if (checkeado === true) {
         arrayTareas.forEach(element => {
             if (element.Id === objetoIdCompletada) {
                 if (element.complete === "incompleta") {
                     element.complete = "completada"
                     element.activa = "desativada"
-                    
+
                 }
             }
+
         })
         guadarDB()
-        
+        if (validarchekc == true) {
+            filtrarActivas();
+        }
     }
     else {
         arrayTareas.forEach(element => {
@@ -80,15 +86,62 @@ function check(checkk, id) {
                 if (element.complete === "completada") {
                     element.complete = "incompleta"
                     element.activa = "activa"
+
                 }
             }
         })
         guadarDB()
+        if (validarchekc == false) {
+            filtrarCompletadas();
+        }
     }
+
+
+
 }
+function invalidarBotonEdit(ubicacion, id) {
+    objetoInvalidarEdit = id
+    let botonEdit = ubicacion.target.parentNode.parentNode.childNodes[1].childNodes[0];
+    botonEdit.setAttribute("disabled", '')
+    arrayTareas.forEach(element => {
+        if (element.Id === id) {
+            element.EditAtivo = "desativado"
+        }
+    })
+    guadarDB()
+  
+}
+function placeholderComenta(placeholderr,id){
+    arrayTareas.forEach(element => {
+        if (element.Id === id) {
+            element.placeholder = placeholderr;
+        }
+    })
+    guadarDB()
+}
+function placeholderComentaBorrar(id){
+    arrayTareas.forEach(element=>{
+        if(element.Id === id){
+            element.placeholder = "";
+        }
+    })
+    guadarDB()
+}
+function ActivarBotonEdit(ubicacion, id) {
+    objetoInvalidarEdit = id
+    let botonEdit = ubicacion.parentNode.parentNode.childNodes[1].childNodes[0];
+    let atributoDisable = botonEdit.getAttribute("disabled", 'enabled')
+    arrayTareas.forEach(element => {
+        if (element.Id === id) {
+            element.EditAtivo = "activo"
+        }
+    })
+    guadarDB()
+    window.location=window.location;
+}
+
 function eliminar(section, id) {
-    console.log(id)
-    let eliminar = section.parentNode.parentNode
+    let eliminar = section.target.parentNode.parentNode;
     eliminar.remove()
     let datos = localStorage.getItem("Tareas");
     let datosJason = JSON.parse(datos);
@@ -117,8 +170,6 @@ function editar(id) {
         imprimirTareas()
     })
 }
-
-
 function newId() {
     let lastId = localStorage.getItem("Id") || "-1";
     let newLasId = JSON.parse(lastId) + 1;
@@ -133,32 +184,92 @@ function imprimirTareas() {
     }
     else {
         h3allImprimir()
+
         if (tareasTraspaso === true) {
             arrayTareas = JSON.parse(localStorage.getItem('TareasCompletadas'))
         }
-        if(tareasTraspaso === false){
+        if (tareasTraspaso === false) {
             arrayTareas = JSON.parse(localStorage.getItem('TareasActivas'))
         }
         arrayTareas.forEach(element => {
-            let setAtributeChecked = ""
-            if(element.complete === "completada"){
-               setAtributeChecked = "checked"
+            let divContenedor = document.createElement('div')
+            let divContainerTareaDiv = document.createElement('div');
+            divContainerTareaDiv.className = "div-contai-tarea-div"
+            //input de chekeo
+            let inputCheck = document.createElement('input')
+            inputCheck.type = "checkbox"
+            inputCheck.className = "input-checkBox"
+            inputCheck.addEventListener('change', (e) => {
+                let input = inputCheck.checked;
+                if (input === true) {
+                    divContainerTareaDiv.insertAdjacentElement('beforeend', inputComentario);
+                    divContainerTareaDiv.insertAdjacentElement('beforeend', botonChulito);
+                }
+                else {
+                    inputComentario.remove()
+                    botonChulito.remove()
+                    ActivarBotonEdit(inputCheck, element.Id)
+                    placeholderComentaBorrar(element.Id)
+                }
+                check(inputCheck, element.Id)
+            }, false)
+
+            //nombre de la tarea
+            let h3Tarea = document.createElement('h3');
+            h3Tarea.textContent = element.tarea
+            //input comentario
+            let inputComentario = document.createElement('textarea')
+            inputComentario.placeholder = element.placeholder;
+            inputComentario.className = "textAreaComentario"
+            
+            let divButonesEditDelete = document.createElement("div");
+            //boton editar
+            let btonEditar = document.createElement("button");
+            btonEditar.className = "button-edit";
+            btonEditar.textContent = "Edit"
+            btonEditar.addEventListener('click', (e) => {
+                editar(element.Id)
+            })
+            //boton eliminar
+            let botonEliminar = document.createElement("button");
+            botonEliminar.textContent = "delete"
+            botonEliminar.className = "button-delete";
+            botonEliminar.addEventListener('click', (e) => {
+                e.preventDefault();
+                eliminar(e, element.Id)
+            })
+            let botonChulito = document.createElement("button")
+            botonChulito.className = "botonAgregarComentario";
+            botonChulito.textContent = "✓";
+            botonChulito.addEventListener("click", (e) => {
+                inputComentario.textContent = ""
+                invalidarBotonEdit(e, element.Id)
+                let placeholderComentario = inputComentario.value;
+                console.log(placeholderComentario)
+                placeholderComenta(placeholderComentario,element.Id);
+                inputComentario.value = "";
+                imprimirTareas()
+            })
+
+            //inserciones
+            section.insertAdjacentElement("beforeend", divContenedor);
+            divContenedor.insertAdjacentElement("beforeend", divContainerTareaDiv);
+            divContenedor.insertAdjacentElement("beforeend", divButonesEditDelete);
+            divContainerTareaDiv.insertAdjacentElement('beforeend', inputCheck)
+            divContainerTareaDiv.insertAdjacentElement('beforeend', h3Tarea)
+            divButonesEditDelete.insertAdjacentElement("beforeend", btonEditar)
+            divButonesEditDelete.insertAdjacentElement("beforeend", botonEliminar)
+
+            //eventos
+            if (element.complete === "completada") {
+                inputCheck.setAttribute("checked", "checked")
+                divContainerTareaDiv.insertAdjacentElement('beforeend', inputComentario);
+                divContainerTareaDiv.insertAdjacentElement('beforeend', botonChulito);
             }
-            section.innerHTML +=
-                ` <div>
-            <div class="div-contai-tarea-div">
-                <input type="checkbox" class="input-checkBox" ${setAtributeChecked} onchange="check(this,${element.Id},false)">
-                <h3>${element.tarea}</h3>
-            </div> 
-            <div>
-                <button class="button-edit"  onclick="editar(${element.Id})">
-                    Edit
-                </button>
-                <button class="button-delete" onclick="eliminar(this,${element.Id})">
-                    delete
-                </button>
-            </div>
-        </div>`
+            if (element.EditAtivo === "desativado") {
+                btonEditar.setAttribute("disabled", "")
+            }
+
         })
     }
     guadarDB()
@@ -170,10 +281,10 @@ let h3TaskAll = document.getElementById("h3-Task");
 let buttonComplete = document.getElementById("tarea-completada");
 let buttonActive = document.getElementById("Active");
 let buttonAll = document.getElementById("all");
-buttonAll.addEventListener("click",filtrarAlls)
-buttonActive.addEventListener("click",filtrarActivas)
 
-buttonComplete.addEventListener("click",filtrarCompletadas)
+buttonAll.addEventListener("click", filtrarAlls)
+buttonActive.addEventListener("click", filtrarActivas)
+buttonComplete.addEventListener("click", filtrarCompletadas)
 
 formulario.addEventListener('submit', (e) => {
     e.preventDefault();
