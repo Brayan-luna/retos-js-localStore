@@ -61,10 +61,12 @@ function tareaPushArray(Tarea, id) {
     arrayTareas.push(tarea);
     guadarDB()
 }
-function check(checkk, id) {
+function check(checkk, id,divContainerTareaDiv,inputComentario,botonChulito,inputCheck) {
     let checkeado = checkk.checked;
     objetoIdCompletada = id
     if (checkeado === true) {
+        divContainerTareaDiv.insertAdjacentElement('beforeend', inputComentario);
+        divContainerTareaDiv.insertAdjacentElement('beforeend', botonChulito);
         arrayTareas.forEach(element => {
             if (element.Id === objetoIdCompletada) {
                 if (element.complete === "incompleta") {
@@ -81,6 +83,10 @@ function check(checkk, id) {
         }
     }
     else {
+        inputComentario.remove()
+        botonChulito.remove()
+        placeholderComentaBorrar(id)
+        ActivarBotonEdit(inputCheck,id)
         arrayTareas.forEach(element => {
             if (element.Id === objetoIdCompletada) {
                 if (element.complete === "completada") {
@@ -90,10 +96,12 @@ function check(checkk, id) {
                 }
             }
         })
+        
         guadarDB()
         if (validarchekc == false) {
             filtrarCompletadas();
         }
+       
     }
 
 
@@ -125,21 +133,20 @@ function placeholderComentaBorrar(id){
             element.placeholder = "";
         }
     })
-    guadarDB()
+    guadarDB()    
 }
 function ActivarBotonEdit(ubicacion, id) {
+    
     objetoInvalidarEdit = id
     let botonEdit = ubicacion.parentNode.parentNode.childNodes[1].childNodes[0];
-    let atributoDisable = botonEdit.getAttribute("disabled", 'enabled')
     arrayTareas.forEach(element => {
         if (element.Id === id) {
             element.EditAtivo = "activo"
         }
     })
     guadarDB()
-    window.location=window.location;
+    imprimirTareas()
 }
-
 function eliminar(section, id) {
     let eliminar = section.target.parentNode.parentNode;
     eliminar.remove()
@@ -147,7 +154,12 @@ function eliminar(section, id) {
     let datosJason = JSON.parse(datos);
     let ArrayNuevo = datosJason.filter((e) => e.Id !== id)
     localStorage.setItem("Tareas", JSON.stringify(ArrayNuevo))
-    h3allImprimir()
+    if (validarchekc == true) {
+        filtrarActivas();
+    }
+    if (validarchekc == false) {
+        filtrarCompletadas();
+    }
 }
 function editar(id) {
     idObjetoEdit = id;
@@ -200,19 +212,10 @@ function imprimirTareas() {
             inputCheck.type = "checkbox"
             inputCheck.className = "input-checkBox"
             inputCheck.addEventListener('change', (e) => {
-                let input = inputCheck.checked;
-                if (input === true) {
-                    divContainerTareaDiv.insertAdjacentElement('beforeend', inputComentario);
-                    divContainerTareaDiv.insertAdjacentElement('beforeend', botonChulito);
-                }
-                else {
-                    inputComentario.remove()
-                    botonChulito.remove()
-                    ActivarBotonEdit(inputCheck, element.Id)
-                    placeholderComentaBorrar(element.Id)
-                }
-                check(inputCheck, element.Id)
-            }, false)
+
+                check(inputCheck, element.Id,divContainerTareaDiv,inputComentario,botonChulito,inputCheck)
+                
+            },false)
 
             //nombre de la tarea
             let h3Tarea = document.createElement('h3');
@@ -245,7 +248,6 @@ function imprimirTareas() {
                 inputComentario.textContent = ""
                 invalidarBotonEdit(e, element.Id)
                 let placeholderComentario = inputComentario.value;
-                console.log(placeholderComentario)
                 placeholderComenta(placeholderComentario,element.Id);
                 inputComentario.value = "";
                 imprimirTareas()
@@ -261,15 +263,19 @@ function imprimirTareas() {
             divButonesEditDelete.insertAdjacentElement("beforeend", botonEliminar)
 
             //eventos
+            if(element.complete === "incompleta"){
+                inputCheck.getAttribute("checked", "")
+            }
             if (element.complete === "completada") {
                 inputCheck.setAttribute("checked", "checked")
                 divContainerTareaDiv.insertAdjacentElement('beforeend', inputComentario);
                 divContainerTareaDiv.insertAdjacentElement('beforeend', botonChulito);
             }
+            
             if (element.EditAtivo === "desativado") {
                 btonEditar.setAttribute("disabled", "")
             }
-
+          
         })
     }
     guadarDB()
