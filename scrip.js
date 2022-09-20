@@ -41,7 +41,7 @@ function h3ActiveImprimir() {
     h3TaskAll.textContent = `Task Active: ${h3Active}`
 }
 function h3CompleteImprimir() {
-    arrayTareas = JSON.parse(localStorage.getItem('TareasCompletadas'))
+    let arrayTareas = JSON.parse(localStorage.getItem('TareasCompletadas'))
     let h3All = arrayTareas.length;
     h3TaskAll.textContent = `Task Complete ${h3All}`
 }
@@ -63,12 +63,14 @@ function tareaPushArray(Tarea, id) {
 }
 function check(checkk, id,divContainerTareaDiv,inputComentario,botonChulito,inputCheck) {
     let checkeado = checkk.checked;
+    objetoIdCompletada = 0;
     objetoIdCompletada = id
     if (checkeado === true) {
         divContainerTareaDiv.insertAdjacentElement('beforeend', inputComentario);
         divContainerTareaDiv.insertAdjacentElement('beforeend', botonChulito);
         arrayTareas.forEach(element => {
             if (element.Id === objetoIdCompletada) {
+             
                 if (element.complete === "incompleta") {
                     element.complete = "completada"
                     element.activa = "desativada"
@@ -80,6 +82,9 @@ function check(checkk, id,divContainerTareaDiv,inputComentario,botonChulito,inpu
         guadarDB()
         if (validarchekc == true) {
             filtrarActivas();
+        }
+        else{
+            imprimirTareas()
         }
     }
     else {
@@ -96,15 +101,17 @@ function check(checkk, id,divContainerTareaDiv,inputComentario,botonChulito,inpu
                 }
             }
         })
-        
+      
         guadarDB()
         if (validarchekc == false) {
             filtrarCompletadas();
         }
-       
+        else{
+            imprimirTareas()
+        }
     }
 
-
+guadarDB
 
 }
 function invalidarBotonEdit(ubicacion, id) {
@@ -212,9 +219,7 @@ function imprimirTareas() {
             inputCheck.type = "checkbox"
             inputCheck.className = "input-checkBox"
             inputCheck.addEventListener('change', (e) => {
-
-                check(inputCheck, element.Id,divContainerTareaDiv,inputComentario,botonChulito,inputCheck)
-                
+                check(inputCheck, element.Id,divContainerTareaDiv,inputComentario,botonChulito,inputCheck);         
             },false)
 
             //nombre de la tarea
@@ -239,7 +244,7 @@ function imprimirTareas() {
             botonEliminar.className = "button-delete";
             botonEliminar.addEventListener('click', (e) => {
                 e.preventDefault();
-                eliminar(e, element.Id)
+                eliminar(e,element.Id)
             })
             let botonChulito = document.createElement("button")
             botonChulito.className = "botonAgregarComentario";
